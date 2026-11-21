@@ -11,6 +11,11 @@ if(WIN32)
     message(FATAL_ERROR "Windows builds use the Makefile (MinGW or MSVC cross-compilation).")
 endif()
 
+option(LAB_BUILD "Build the offline anti-cheat lab" OFF)
+if(LAB_BUILD)
+    add_compile_definitions(LAB_BUILD=1)
+endif()
+
 option(BUILD_CLIENT "Build the client" ON)
 option(WANT_STEAM "Build with Steam support" OFF)
 option(WANT_DISCORD "Build with Discord support" OFF)

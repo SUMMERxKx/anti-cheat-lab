@@ -3,6 +3,19 @@
 // so a link clicked while playing goes to it instead of starting another game
 #include "engine.h"
 
+#ifdef LAB_BUILD
+// Join links are not part of the offline lab.
+namespace joinlink
+{
+    bool validhost(const char *, int) { return false; }
+    bool parse(const char *, char *, int &) { return false; }
+    bool handoff(const char *, int) { return false; }
+    bool steamlaunch() { return false; }
+    void queue(const char *, int) {}
+    void start() {}
+    void update() {}
+}
+#else
 #ifndef WIN32
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -570,3 +583,5 @@ namespace joinlink
 }
 
 ICOMMAND(0, joinlinkopen, "", (), { connectserv(joinlink::joinlinkhost, joinlink::joinlinkport, NULL); });
+
+#endif
