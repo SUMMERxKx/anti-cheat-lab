@@ -3544,6 +3544,13 @@ namespace game
         return accelsens/sensitivity;
     }
 
+    void applylook(physent *d, float yaw, float pitch)
+    {
+        d->yaw = yaw;
+        d->pitch = pitch;
+        fixrange(d->yaw, d->pitch);
+    }
+
     VAR(0, mouseoverride, 0, 0, 3);
     bool mousemove(int dx, int dy, int x, int y, int w, int h)
     {
@@ -3571,9 +3578,9 @@ namespace game
             if(d)
             {
                 float scale = (focus == player1 && inzoom() && zoomsensitivity > 0 ? (1.f-((zoomlevel+1)/float(zoomlevels+2)))*zoomsensitivity : 1.f)*sensitivity*mouseaccelscale();
-                d->yaw += mousesens(dx, sensitivityscale, yawsensitivity*scale);
-                d->pitch -= mousesens(dy, sensitivityscale, pitchsensitivity*scale*(mouseinvert ? -1.f : 1.f));
-                fixrange(d->yaw, d->pitch);
+                float yaw = d->yaw + mousesens(dx, sensitivityscale, yawsensitivity*scale);
+                float pitch = d->pitch - mousesens(dy, sensitivityscale, pitchsensitivity*scale*(mouseinvert ? -1.f : 1.f));
+                applylook(d, yaw, pitch);
             }
             return true;
         }
@@ -4480,6 +4487,10 @@ namespace game
         nexttype = -1;
     }
 
+#ifdef LAB_BUILD
+    void lab_update_snapshot();
+#endif
+
     void updateworld() // main game update loop
     {
         client::checkaccount();
@@ -4579,6 +4590,9 @@ namespace game
             if(hud::canshowscores()) hud::showscores(true);
         }
 
+#ifdef LAB_BUILD
+        lab_update_snapshot();
+#endif
         if(player1->clientnum >= 0) client::c2sinfo();
         entities::updatepassengers();
     }

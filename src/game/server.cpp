@@ -1291,6 +1291,14 @@ namespace server
         return true;
     }
 
+#ifdef LAB_BUILD
+    bool lab_local_client(int cn)
+    {
+        clientinfo *ci = (clientinfo *)getinfo(cn);
+        return ci && ci->connected && ci->local && ci->actortype == A_PLAYER;
+    }
+#endif
+
     int peerowner(int n)
     {
         clientinfo *ci = (clientinfo *)getinfo(n);
