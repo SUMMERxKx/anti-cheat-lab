@@ -21,14 +21,14 @@
 #define VERSION_HLP(x,y,z,r) #x#r#y#r#z
 #define VERSION_STR(x,y,z,r) VERSION_HLP(x,y,z,r)
 #define VERSION_STRING VERSION_STR(VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,.)
-#define VERSION_NAME "Red Eclipse"
-#define VERSION_FNAME "Red Eclipse"
-#define VERSION_UNAME "redeclipse"
-#define VERSION_VNAME "REDECLIPSE"
+#define VERSION_NAME "Anti-Cheat Lab"
+#define VERSION_FNAME "Anti-Cheat Lab"
+#define VERSION_UNAME "anti-cheat-lab"
+#define VERSION_VNAME "ANTI_CHEAT_LAB"
 #define VERSION_RELEASE "Big Bang Beta"
 #define VERSION_URL "redeclipse.net"
 #define VERSION_COPY "2009-2025"
-#define VERSION_DESC "An arena shooter for the modern era"
+#define VERSION_DESC "Offline lab based on Red Eclipse, not affiliated"
 #define VERSION_STEAM_APPID 967460
 #define VERSION_STEAM_DEPOT 967461
 #define VERSION_DISCORD "506825464946360321"

@@ -192,5 +192,10 @@ foreach(target IN LISTS TARGETS)
         XCODE_GENERATE_SCHEME ON
         XCODE_SCHEME_WORKING_DIRECTORY ${ROOTDIR}
     )
+    if(LAB_BUILD AND target STREQUAL "redeclipse")
+        set_target_properties(${target} PROPERTIES OUTPUT_NAME anti_cheat_lab${BIN_SUFFIX})
+    elseif(LAB_BUILD AND target STREQUAL "redeclipse_server")
+        set_target_properties(${target} PROPERTIES OUTPUT_NAME anti_cheat_lab_server${BIN_SUFFIX})
+    endif()
     install(TARGETS ${target} DESTINATION ${INSTDIR})
 endforeach()

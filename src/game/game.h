@@ -3,9 +3,9 @@
 
 #include "engine.h"
 
-#define VERSION_GAMEID "fps"
-#define VERSION_GAME 297
-#define VERSION_DEMOMAGIC "RED_ECLIPSE_DEMO"
+#define VERSION_GAMEID "anti-cheat-lab"
+#define VERSION_GAME -297
+#define VERSION_DEMOMAGIC "ANTI_CHEAT_LAB_DEMO"
 
 #define MAXAI 256
 #define MAXPLAYERS (MAXCLIENTS+MAXAI*2)
