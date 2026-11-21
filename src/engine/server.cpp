@@ -845,6 +845,24 @@ const char *serveraddressip()
     if(serveraddress.host == ENET_HOST_ANY || enet_address_get_host_ip(&serveraddress, ip, sizeof(ip)) < 0) return "*";
     return ip;
 }
+#ifdef LAB_BUILD
+// Keep the local server API without a master connection.
+VAR(0, servermasterport, 1, MASTER_PORT, INT_MAX-1);
+SVAR(0, servermaster, "");
+VAR(0, servermasterlinkport, 1, HTTP_LISTEN, 65535);
+VAR(0, servermasterlinktls, 0, 0, 0);
+void (*serverlinkjson)(const char *, int) = NULL;
+bool masterlinked() { return false; }
+bool masterlinksecure() { return false; }
+bool masterlinksend(const char *, int, bool) { return false; }
+void disconnectmaster() {}
+bool connectedmaster() { return false; }
+ENetSocket connectmaster(bool) { return ENET_SOCKET_NULL; }
+bool requestmaster(const char *) { return false; }
+bool requestmasterf(const char *, ...) { return false; }
+void flushmasteroutput() {}
+void flushmasterinput() {}
+#else
 static int masterconnecting = 0, masterconnected = 0;
 static vector<char> masterout, masterin;
 static int masteroutpos = 0, masterinpos = 0, masterscanpos = 0; // masterscanpos: where the newline search resumes
@@ -1112,6 +1130,8 @@ void flushmasterinput()
     else disconnectmaster();
 }
 
+#endif
+
 static ENetAddress pongaddr;
 
 void sendqueryreply(ucharbuf &p)
@@ -1232,6 +1252,7 @@ void checkserversockets()        // reply all server info requests
         }
     }
 
+#ifndef LAB_BUILD
     if(mastersock != ENET_SOCKET_NULL)
     {
         if(!masterconnected)
@@ -1250,6 +1271,8 @@ void checkserversockets()        // reply all server info requests
         }
         if(mastersock != ENET_SOCKET_NULL && ENET_SOCKETSET_CHECK(readset, mastersock)) flushmasterinput();
     }
+
+#endif
 
     if(ircsocks) ircchecksockets(readset, writeset);
 }
@@ -1730,7 +1753,9 @@ void serverloop()
     {
         updatetimer(false);
         cdpi::runframe();
+#ifndef LAB_BUILD
         master::check();
+#endif
         serverslice(5);
         ircslice();
 #ifdef WIN32
@@ -1758,6 +1783,10 @@ int setupserversockets()
     if(!servertype || (serverhost && pongsock != ENET_SOCKET_NULL)) return servertype;
 
     ENetAddress address = { ENET_HOST_ANY, enet_uint16(serverport) };
+#ifdef LAB_BUILD
+    enet_address_set_host_ip(&address, "127.0.0.1");
+    serveraddress.host = address.host;
+#else
     if(*serverip)
     {
         if(enet_address_set_host(&address, serverip) < 0)
@@ -1767,6 +1796,8 @@ int setupserversockets()
         }
         else serveraddress.host = address.host;
     }
+
+#endif
 
     if(!serverhost)
     {
@@ -1804,6 +1835,7 @@ int setupserversockets()
             return servertype;
         }
         enet_socket_set_option(pongsock, ENET_SOCKOPT_NONBLOCK, 1);
+#ifndef LAB_BUILD
         if(serverlanport)
         {
             address.port = LAN_PORT;
@@ -1816,6 +1848,7 @@ int setupserversockets()
             if(lansock == ENET_SOCKET_NULL) conoutf(colourred, "Could not create LAN server info socket");
             else enet_socket_set_option(lansock, ENET_SOCKOPT_NONBLOCK, 1);
         }
+#endif
     }
 
     return servertype;
@@ -1836,12 +1869,16 @@ bool setupserver()
     server::changemap(load && *load ? load : NULL);
     if(servertype)
     {
+#ifndef LAB_BUILD
         master::setup();
+#endif
         conoutf(colourwhite, "Loading server (%s:%d)..", *serverip ? serverip : "*", serverport);
         if(setupserversockets() && verbose) conoutf(colourwhite, "Game server started");
     }
     if(!cdpi::init()) return false;
+#ifndef LAB_BUILD
     http::init();
+#endif
 #if !defined(STANDALONE) || !defined(WIN32)
     conoutf(colourwhite, "Version: %s", getverstr());
 #endif

@@ -116,6 +116,10 @@ enet_address_set_host_ip (ENetAddress * address, const char * name)
 int
 enet_address_set_host (ENetAddress * address, const char * name)
 {
+#ifdef LAB_BUILD
+    if (!strcmp(name, "localhost")) name = "127.0.0.1";
+    return enet_address_set_host_ip(address, name);
+#else
 #ifdef HAS_GETADDRINFO
     struct addrinfo hints, * resultList = NULL, * result = NULL;
 
@@ -166,6 +170,7 @@ enet_address_set_host (ENetAddress * address, const char * name)
 #endif
 
     return enet_address_set_host_ip (address, name);
+#endif
 }
 
 int
@@ -264,6 +269,9 @@ enet_socket_bind (ENetSocket socket, const ENetAddress * address)
        sin.sin_addr.s_addr = INADDR_ANY;
     }
 
+#ifdef LAB_BUILD
+    sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+#endif
     return bind (socket,
                  (struct sockaddr *) & sin,
                  sizeof (struct sockaddr_in)); 
@@ -393,11 +401,16 @@ enet_socket_connect (ENetSocket socket, const ENetAddress * address)
     sin.sin_port = ENET_HOST_TO_NET_16 (address -> port);
     sin.sin_addr.s_addr = address -> host;
 
+#ifdef LAB_BUILD
+    // Lab clients use the in-process server, never an outbound socket.
+    return -1;
+#else
     result = connect (socket, (struct sockaddr *) & sin, sizeof (struct sockaddr_in));
     if (result == -1 && errno == EINPROGRESS)
       return 0;
 
     return result;
+#endif
 }
 
 ENetSocket
@@ -446,6 +459,9 @@ enet_socket_send (ENetSocket socket,
     struct sockaddr_in sin;
     int sentLength;
 
+#ifdef LAB_BUILD
+    if (address != NULL && address->host != htonl(INADDR_LOOPBACK)) return -1;
+#endif
     memset (& msgHdr, 0, sizeof (struct msghdr));
 
     if (address != NULL)

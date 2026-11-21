@@ -2,6 +2,19 @@
 
 #include "engine.h"
 
+#ifdef LAB_BUILD
+// The lab has no server browser, resolver or LAN discovery.
+vector<serverinfo *> servers;
+bool sortedservers = true;
+serverinfo *addserver(const char *, int, int, const char *, const char *, const char *, const char *, int) { return NULL; }
+serverinfo *presenceserver(bool &listed) { listed = false; return NULL; }
+void loadservercfg() {}
+void checkserverlist() {}
+void writeservercfg() {}
+void writemastersignin(stream *) {}
+bool resolverwait(const char *, ENetAddress *) { return false; }
+int connectwithtimeout(ENetSocket, const char *, const ENetAddress &) { return -1; }
+#else
 struct resolverthread
 {
     SDL_Thread *thread;
@@ -2412,3 +2425,5 @@ void writeservercfg()
     }
     delete f;
 }
+
+#endif

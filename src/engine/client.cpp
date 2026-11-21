@@ -146,6 +146,7 @@ VAR(0, connectport, 0, 0, VAR_MAX);
 VAR(IDF_PERSIST, connectguidelines, 0, 0, 1);
 SVAR(0, guidelinesaction, "");
 
+#ifndef LAB_BUILD
 void connectserv(const char *name, int port, const char *password)
 {
     abortconnect();
@@ -203,6 +204,8 @@ void connectserv(const char *name, int port, const char *password)
     conoutf(colourgreen, "Connecting to %s:[%d]", name != NULL ? name : "local server", port);
 }
 
+#endif
+
 void disconnect(bool onlyclean, bool async)
 {
     bool cleanup = onlyclean;
@@ -241,16 +244,18 @@ void disconnect(bool onlyclean, bool async)
     if(!onlyclean) localconnect(false);
 }
 
+#ifndef LAB_BUILD
 ICOMMAND(IDF_NOECHO, connect, "sis", (char *n, int *a, char *pwd), connectserv(*n ? n : servermaster, *n || *a ? *a : SERVER_PORT, pwd));
-ICOMMAND(IDF_NOECHO, disconnect, "i", (int *force), trydisconnect(*force!=0));
-
 ICOMMAND(IDF_NOECHO, lanconnect, "is", (int *a, char *pwd), connectserv(NULL, *a, pwd));
+#endif
+ICOMMAND(IDF_NOECHO, disconnect, "i", (int *force), trydisconnect(*force!=0));
 ICOMMAND(IDF_NOECHO, localconnect, "i", (int *n), localconnect(*n ? false : true));
 
 ICOMMANDV(0, isonline, curpeer ? 1 : 0);
 ICOMMANDV(0, isconnected, connected() ? 1 : 0);
 ICOMMAND(0, getconnected, "bb", (int *a, int *b), intret(connected(*a!=0, *b!=0) ? 1 : 0));
 
+#ifndef LAB_BUILD
 void reconnect(const char *pass)
 {
     int port = 0;
@@ -261,6 +266,8 @@ void reconnect(const char *pass)
     connectserv(*addr ? addr : NULL, port > 0 ? port : SERVER_PORT, pass);
 }
 COMMAND(0, reconnect, "s");
+
+#endif
 
 int lastupdate = -1000;
 

@@ -2023,6 +2023,9 @@ namespace httpnet
 
     bool start(config &c)
     {
+#ifdef LAB_BUILD
+        return false;
+#else
         if(running) { setconfig(c); return true; }
         sharedcfg = cfg = c;
         wakefd = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
@@ -2053,6 +2056,7 @@ namespace httpnet
         }
         running = true;
         return true;
+#endif
     }
 
     void stop()
