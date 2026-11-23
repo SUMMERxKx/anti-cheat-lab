@@ -4538,6 +4538,9 @@ namespace game
             projs::update();
             ai::update();
             entities::update();
+#ifdef LAB_BUILD
+            lab_update_snapshot();
+#endif
 
             if(gs_playing(gamestate))
             {
@@ -4590,9 +4593,6 @@ namespace game
             if(hud::canshowscores()) hud::showscores(true);
         }
 
-#ifdef LAB_BUILD
-        lab_update_snapshot();
-#endif
         if(player1->clientnum >= 0) client::c2sinfo();
         entities::updatepassengers();
     }
