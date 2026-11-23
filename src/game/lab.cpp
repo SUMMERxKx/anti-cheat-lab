@@ -14,6 +14,10 @@ namespace game
     void applylook(physent *d, float yaw, float pitch);
 }
 
+#ifdef LAB_AIMBOT
+extern "C" void lab_aimbot_update(void);
+#endif
+
 static lab_snapshot snapshot = {};
 static const lab_snapshot empty_snapshot = {};
 
@@ -33,7 +37,7 @@ static lab_vec3 lab_point(const vec &p)
 
 namespace game
 {
-    void lab_update_snapshot()
+    static void lab_build_snapshot()
     {
         snapshot = {};
         if(!lab_local_match()) return;
@@ -64,6 +68,14 @@ namespace game
             enemy.velocity = lab_point(vec(d->vel).add(d->falling));
             enemy.visible = enemy.alive && raycubelos(player1->o, head, hit);
         }
+    }
+
+    void lab_update_snapshot()
+    {
+        lab_build_snapshot();
+#ifdef LAB_AIMBOT
+        lab_aimbot_update();
+#endif
     }
 }
 
