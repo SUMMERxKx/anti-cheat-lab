@@ -91,7 +91,7 @@ extern "C" void lab_set_view(float yaw, float pitch)
     if(!std::isfinite(yaw) || !std::isfinite(pitch)) return;
     game::applylook(game::player1, yaw, pitch);
     // Shots this frame aim at worldpos, so point it along the new view.
-    safefindorientation(game::player1->o, game::player1->yaw, game::player1->pitch, worldpos);
+    findorientation(game::player1->o, game::player1->yaw, game::player1->pitch, worldpos);
     game::adjustorientation(worldpos);
 }
 
